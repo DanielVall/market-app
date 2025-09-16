@@ -7,25 +7,25 @@
     <link rel="icon" type= "image/png" href ="icons/market_main.png" />
 </head>
 <body>
-    <center><h1> Register </h1></center><br>
-    <table border ="0" align= "center">
+    <center><h1> Register </h1></center>
+    <form name = "register-form" action="signup.php" method ="post">
+     <table border ="0" align= "center">
         <tr><td><label> Fistname: </label></td></tr>
-        <tr><td><input type= "text" placeholder="Joe Doe"><br></td></tr>
+        <tr><td><input type= "text" name="fname" placeholder="Joe Doe" required><br></td></tr>
         <tr><td><label> Lastname: </label></td></tr>
-        <tr><td><input type= "text"><br></td></tr>
+        <tr><td><input type= "text" name ="lname" required><br></td></tr>
         <tr><td><label> Mobile number: </label></td></tr>
-        <tr><td><input type= "text"><br></td></tr>
+        <tr><td><input type= "text" name="mnumber" required><br></td></tr>
         <tr><td><label> Identification number: </label></td></tr>
-        <tr><td><input type= "text"><br></td></tr>
+        <tr><td><input type= "text" name="idnumber" required><br></td></tr>
         <tr><td><label> Email: </label></td></tr>
-        <tr><td><input type= "text"><br></td></tr>
+        <tr><td><input type= "text" name="email" required><br></td></tr>
         <tr><td><label> Password: </label></td></tr>
-        <tr><td><input type= "password"><br></td></tr>
+        <tr><td><input type= "password" name="passwd" required><br></td></tr>
         <tr><td><label> <center><button>Register</button></center> </label></td></tr>
         
 
     </table>
-    
-
+    </form>
 </body>
 </html>
