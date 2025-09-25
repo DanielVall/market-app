@@ -10,7 +10,8 @@
     $e_mail = $_POST ['email'];
     $p_wd = $_POST ['passwd'];
 
-    $enc_pass = password_hash($p_wd, PASSWORD_DEFAULT);
+    //$enc_pass = password_hash($p_wd, PASSWORD_DEFAULT);
+    $enc_pass = md5($p_wd);
 
     $check_email = "
         SELECT
@@ -18,7 +19,7 @@
         FROM
             users u
         WHERE
-            email = '$e_mail' or '$ide_number' = '$id_number' 
+            email = '$e_mail' or ide_number = '$id_number' 
         LIMIT 1 
     ";
     $res_check= pg_query ($conn, $check_email);
@@ -41,7 +42,7 @@
         '$m_number', 
         '$id_number', 
         '$e_mail', 
-        '$p_wd'
+        '$enc_pass'
         )
     ";
 
