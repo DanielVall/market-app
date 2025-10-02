@@ -3,12 +3,12 @@
     require ('../config/database.php');
 
     //Step 2. Get from Data --> traer los datos del formulario
-    $f_name = $_POST ['fname'];
-    $l_name = $_POST ['lname'];
-    $m_number = $_POST ['mnumber'];
-    $id_number = $_POST ['idnumber'];
-    $e_mail = $_POST ['email'];
-    $p_wd = $_POST ['passwd'];
+    $f_name = trim ($_POST ['fname']);
+    $l_name = trim ($_POST ['lname']);
+    $m_number = trim ($_POST ['mnumber']);
+    $id_number = trim ($_POST ['idnumber']);
+    $e_mail = trim ($_POST ['email']);
+    $p_wd = trim ($_POST ['passwd']);
 
     //$enc_pass = password_hash($p_wd, PASSWORD_DEFAULT);
     $enc_pass = md5($p_wd);
