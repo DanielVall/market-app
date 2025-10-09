@@ -22,7 +22,7 @@
             email = '$e_mail' or ide_number = '$id_number' 
         LIMIT 1 
     ";
-    $res_check= pg_query ($conn, $check_email);
+    $res_check= pg_query ($conn_supa, $check_email);
     if(pg_num_rows($res_check) > 0){
         echo "<script>alert('User already exists !!! Go to login')</script>";
         header ('refresh:0;url=signup.html');
@@ -47,7 +47,7 @@
     ";
 
     //Step 4. --> ejecucion del query
-    $res = pg_query ($conn, $query);
+    $res = pg_query ($conn_supa, $query);
 
     //Step 5. Validate result
     if ($res){
