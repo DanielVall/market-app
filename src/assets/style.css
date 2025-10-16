@@ -1,0 +1,31 @@
+/* src/assets/style.css */
+:root{
+  --bg: #f6f9ff;
+  --card: #ffffff;
+  --accent: #0b6ef6;
+  --muted: #6b7280;
+  --radius: 12px;
+  --max-width: 980px;
+}
+*{box-sizing:border-box;font-family:Inter, Roboto, Arial, sans-serif}
+body{
+  margin:0;background:linear-gradient(180deg,#eef6ff,var(--bg));padding:28px;display:flex;justify-content:center;
+}
+.container{
+  width:100%;max-width:var(--max-width);background:var(--card);border-radius:var(--radius);box-shadow:0 10px 30px rgba(2,6,23,0.08);padding:22px;
+}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.brand h1{margin:0;font-size:20px}
+.nav a{color:var(--accent);text-decoration:none;margin-left:14px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:linear-gradient(180deg,#fff,#fbfdff);padding:16px;border-radius:10px;border:1px solid rgba(2,6,23,0.04)}
+.card h3{margin:0 0 10px 0;font-size:16px}
+.form-row{display:flex;flex-direction:column;margin-bottom:10px}
+.form-row label{font-size:13px;color:var(--muted);margin-bottom:6px}
+.form-row input,.form-row select{padding:10px;border-radius:8px;border:1px solid rgba(2,6,23,0.06);font-size:14px;background:#fff}
+.form-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn.secondary{background:#eef6ff;color:var(--accent);border:1px solid rgba(11,110,246,0.12)}
+.list ul{padding-left:18px;margin:0}
+.footer{margin-top:18px;text-align:right;color:var(--muted);font-size:13px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
