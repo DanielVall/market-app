@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+  header("Location: signin.php");
+  exit;
+}
+
 require_once __DIR__ . '/../config/database.php';
 
 // ================== BUSCADOR ==================
@@ -37,15 +43,19 @@ $res = pg_query($conn, $sql_users);
   <div class="container">
     <div class="header">
       <div class="brand"><h1>Users</h1></div>
-      <div class="nav"><a href="index.html" class="btn">Home</a></div>
+      <div class="nav">
+        <span style="color:#555;margin-right:12px;">👤 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Usuario') ?></span>
+        <a href="main.php" class="btn secondary">🏠 Main</a>
+        <a href="logout.php" class="btn">Logout</a>
+      </div>
     </div>
 
     <div class="card">
       <h3>Buscar usuarios</h3>
-      <form method="get" action="list_users.php">
-        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Buscar por nombre, email o ID" class="input">
+      <form method="get" action="list_users.php" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Buscar por nombre, email o ID" class="input" style="flex:1;min-width:200px;">
         <button type="submit" class="btn">Buscar</button>
-        <a href="list_users.php" class="btn btn-secondary">Limpiar</a>
+        <a href="list_users.php" class="btn secondary">Limpiar</a>
       </form>
     </div>
 

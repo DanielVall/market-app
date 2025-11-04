@@ -30,35 +30,60 @@ $cities = pg_query($conn, "SELECT ci.id, ci.name as city_name, r.name as region_
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Sign up</title>
+<title>Registro de usuario</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <div class="container">
-    <div class="header"><div class="brand"><h1>Register</h1></div><div class="nav"><a href="signin.php">Sign in</a> | <a href="index.html">Home</a></div></div>
-    <div class="card" style="max-width:700px;margin:0 auto">
+    <div class="header">
+      <div class="brand"><h1>Registro</h1></div>
+      <div class="nav"><a href="signin.php">Iniciar sesión</a> | <a href="index.html">Inicio</a></div>
+    </div>
+
+    <div class="auth-container">
       <h3>Crear cuenta</h3>
-      <?php if(!empty($error)) echo '<div style="color:#b91c1c;margin-bottom:8px">'.htmlspecialchars($error).'</div>'; ?>
-      <form method="post" action="signup.php">
-        <div class="form-row"><label>Firstname</label><input name="fname" required></div>
-        <div class="form-row"><label>Lastname</label><input name="lname" required></div>
-        <div class="form-row"><label>Mobile number</label><input name="mnumber" required></div>
-        <div class="form-row"><label>Identification number</label><input name="idnumber" required></div>
+      <?php if(!empty($error)) echo '<div class="auth-error">'.htmlspecialchars($error).'</div>'; ?>
+      <form method="post" action="signup.php" class="auth-form">
+
+        <div class="form-row"><label>Nombre</label><input name="fname" required></div>
+        <div class="form-row"><label>Apellido</label><input name="lname" required></div>
+        <div class="form-row"><label>Celular</label><input name="mnumber" required></div>
+        <div class="form-row"><label>Número de identificación</label><input name="idnumber" required></div>
         <div class="form-row"><label>Email</label><input type="email" name="email" required></div>
-        <div class="form-row"><label>Password</label><input type="password" name="passwd" required></div>
-        <div class="form-row"><label>City birth (opcional)</label>
-          <select name="city_birth"><option value="">-- none --</option><?php pg_result_seek($cities,0); while($r = pg_fetch_assoc($cities)): ?>
-            <option value="<?=htmlspecialchars($r['id'])?>"><?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?></option>
-          <?php endwhile; ?></select></div>
+        <div class="form-row"><label>Contraseña</label><input type="password" name="passwd" required></div>
+
+        <div class="form-row">
+          <label>Ciudad de nacimiento (opcional)</label>
+          <select name="city_birth">
+            <option value="">-- Ninguna --</option>
+            <?php pg_result_seek($cities,0); while($r = pg_fetch_assoc($cities)): ?>
+              <option value="<?=htmlspecialchars($r['id'])?>">
+                <?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?>
+              </option>
+            <?php endwhile; ?>
+          </select>
+        </div>
+
         <?php pg_result_seek($cities,0); ?>
-        <div class="form-row"><label>City issue (opcional)</label>
-          <select name="city_issue"><option value="">-- none --</option><?php while($r = pg_fetch_assoc($cities)): ?>
-            <option value="<?=htmlspecialchars($r['id'])?>"><?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?></option>
-          <?php endwhile; ?></select></div>
-        <div class="form-actions"><button class="btn" type="submit">Register</button></div>
+        <div class="form-row">
+          <label>Ciudad de expedición (opcional)</label>
+          <select name="city_issue">
+            <option value="">-- Ninguna --</option>
+            <?php while($r = pg_fetch_assoc($cities)): ?>
+              <option value="<?=htmlspecialchars($r['id'])?>">
+                <?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?>
+              </option>
+            <?php endwhile; ?>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn" type="submit">Registrar</button>
+        </div>
       </form>
     </div>
-    <div class="footer">Cuenta segura (passwords hashed)</div>
+
+    <div class="footer">Tu información está segura (contraseña encriptada)</div>
   </div>
 </body>
 </html>
