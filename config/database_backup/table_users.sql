@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS cities (
   UNIQUE(region_id, name)
 );
 
--- 4) Users
+-- 4) Users (Actualización con la columna url_photo)
 CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL PRIMARY KEY,
   firstname VARCHAR(30) NOT NULL,
@@ -51,6 +51,6 @@ CREATE TABLE IF NOT EXISTS users (
   city_issue_id BIGINT REFERENCES cities(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMPTZ NULL
+  deleted_at TIMESTAMPTZ NULL,
+  url_photo VARCHAR(255) DEFAULT 'photos/user_default.png' -- Nueva columna para la foto de perfil
 );
-

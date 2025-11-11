@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 $error = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $f = trim($_POST['fname'] ?? '');
     $l = trim($_POST['lname'] ?? '');
@@ -11,27 +12,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $city_birth = $_POST['city_birth'] !== '' ? intval($_POST['city_birth']) : null;
     $city_issue = $_POST['city_issue'] !== '' ? intval($_POST['city_issue']) : null;
 
-    if (!$f || !$l || !$m || !$idn || !$e || !$pw) $error = 'Completa los campos obligatorios';
-    else {
-        $check = pg_query_params($conn, "SELECT id FROM users WHERE email=$1 OR ide_number=$2 LIMIT 1", array($e,$idn));
-        if ($check && pg_num_rows($check) > 0) $error = 'Usuario ya existe';
-        else {
+    // Default photo if no image is uploaded
+    $url_photo = 'photos/user_default.png';
+
+    // Handling the uploaded photo
+    if ($_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['photo']['tmp_name'];
+        $fileName = $_FILES['photo']['name'];
+        $fileSize = $_FILES['photo']['size'];
+        $fileType = $_FILES['photo']['type'];
+
+        // Check file type and size if needed
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (in_array($fileType, $allowedTypes) && $fileSize < 5000000) { // 5MB limit
+            $dest_path = 'photos/' . $fileName;
+            if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                $url_photo = $dest_path; // Save the path of the uploaded photo
+            } else {
+                $error = 'Error al subir la imagen.';
+            }
+        } else {
+            $error = 'Formato o tamaño de imagen no permitido.';
+        }
+    }
+
+    if (!$f || !$l || !$m || !$idn || !$e || !$pw) {
+        $error = 'Completa los campos obligatorios';
+    } else {
+        $check = pg_query_params($conn, "SELECT id FROM users WHERE email=$1 OR ide_number=$2 LIMIT 1", array($e, $idn));
+        if ($check && pg_num_rows($check) > 0) {
+            $error = 'Usuario ya existe';
+        } else {
             $hash = password_hash($pw, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (firstname, lastname, mobile_number, ide_number, email, password, city_birth_id, city_issue_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)";
-            $res = pg_query_params($conn, $sql, array($f,$l,$m,$idn,$e,$hash,$city_birth,$city_issue));
-            if ($res === false) $error = pg_last_error($conn);
-            else { echo "<script>alert('Registro exitoso. Inicia sesión'); window.location='signin.php';</script>"; exit; }
+            $sql = "INSERT INTO users (firstname, lastname, mobile_number, ide_number, email, password, city_birth_id, city_issue_id, url_photo) 
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
+            $res = pg_query_params($conn, $sql, array($f, $l, $m, $idn, $e, $hash, $city_birth, $city_issue, $url_photo));
+
+            if ($res === false) {
+                $error = pg_last_error($conn);
+            } else {
+                echo "<script>alert('Registro exitoso. Inicia sesión'); window.location='signin.php';</script>";
+                exit;
+            }
         }
     }
 }
-$cities = pg_query($conn, "SELECT ci.id, ci.name as city_name, r.name as region_name, c.name as country_name FROM cities ci JOIN regions r ON ci.region_id = r.id JOIN countries c ON r.country_id = c.id ORDER BY c.name, r.name, ci.name");
+
+$cities = pg_query($conn, "SELECT ci.id, ci.name as city_name, r.name as region_name, c.name as country_name 
+                           FROM cities ci JOIN regions r ON ci.region_id = r.id JOIN countries c ON r.country_id = c.id 
+                           ORDER BY c.name, r.name, ci.name");
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<title>Registro de usuario</title>
-<link rel="stylesheet" href="assets/style.css">
+    <meta charset="utf-8">
+    <title>Registro de usuario</title>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <div class="container">
@@ -43,7 +80,7 @@ $cities = pg_query($conn, "SELECT ci.id, ci.name as city_name, r.name as region_
     <div class="auth-container">
       <h3>Crear cuenta</h3>
       <?php if(!empty($error)) echo '<div class="auth-error">'.htmlspecialchars($error).'</div>'; ?>
-      <form method="post" action="signup.php" class="auth-form">
+      <form method="post" action="signup.php" enctype="multipart/form-data" class="auth-form">
 
         <div class="form-row"><label>Nombre</label><input name="fname" required></div>
         <div class="form-row"><label>Apellido</label><input name="lname" required></div>
@@ -57,24 +94,25 @@ $cities = pg_query($conn, "SELECT ci.id, ci.name as city_name, r.name as region_
           <select name="city_birth">
             <option value="">-- Ninguna --</option>
             <?php pg_result_seek($cities,0); while($r = pg_fetch_assoc($cities)): ?>
-              <option value="<?=htmlspecialchars($r['id'])?>">
-                <?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?>
-              </option>
+              <option value="<?=htmlspecialchars($r['id'])?>"><?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?></option>
             <?php endwhile; ?>
           </select>
         </div>
 
-        <?php pg_result_seek($cities,0); ?>
         <div class="form-row">
           <label>Ciudad de expedición (opcional)</label>
           <select name="city_issue">
             <option value="">-- Ninguna --</option>
             <?php while($r = pg_fetch_assoc($cities)): ?>
-              <option value="<?=htmlspecialchars($r['id'])?>">
-                <?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?>
-              </option>
+              <option value="<?=htmlspecialchars($r['id'])?>"><?=htmlspecialchars($r['country_name'].' / '.$r['region_name'].' / '.$r['city_name'])?></option>
             <?php endwhile; ?>
           </select>
+        </div>
+
+        <!-- Campo para cargar la foto -->
+        <div class="form-row">
+          <label>Foto de perfil (opcional)</label>
+          <input type="file" name="photo" accept="image/*">
         </div>
 
         <div class="form-actions">

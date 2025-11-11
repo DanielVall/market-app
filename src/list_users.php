@@ -11,7 +11,7 @@ require_once __DIR__ . '/../config/database.php';
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $sql_users = "
-  SELECT u.id, u.firstname, u.lastname, u.email, u.ide_number, u.mobile_number, u.status,
+  SELECT u.id, u.firstname, u.lastname, u.email, u.ide_number, u.mobile_number, u.status, u.url_photo,
          cb.name AS city_birth, ci.name AS city_issue
   FROM users u
   LEFT JOIN cities cb ON u.city_birth_id = cb.id
@@ -64,6 +64,7 @@ $res = pg_query($conn, $sql_users);
       <table class="table">
         <thead>
           <tr>
+            <th>Foto</th> <!-- Nueva columna para la foto -->
             <th>Fullname</th>
             <th>Email</th>
             <th>Ide</th>
@@ -77,6 +78,10 @@ $res = pg_query($conn, $sql_users);
         <tbody>
           <?php while($u = pg_fetch_assoc($res)): ?>
             <tr>
+              <td>
+                <!-- Mostrar la imagen del usuario -->
+                <img src="<?= htmlspecialchars($u['url_photo']) ?>" alt="Foto de <?= htmlspecialchars($u['firstname'].' '.$u['lastname']) ?>" style="width: 50px; height: 50px; border-radius: 50%;">
+              </td>
               <td><?= htmlspecialchars($u['firstname'].' '.$u['lastname']) ?></td>
               <td><?= htmlspecialchars($u['email']) ?></td>
               <td><?= htmlspecialchars($u['ide_number']) ?></td>

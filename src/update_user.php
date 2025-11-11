@@ -9,7 +9,7 @@ $user_id = intval($_GET['id']);
 
 // ================== CONSULTAR DATOS ACTUALES DEL USUARIO ==================
 $sql_user = "
-  SELECT id, firstname, lastname, mobile_number, ide_number, address, birthday, email, status,
+  SELECT id, firstname, lastname, mobile_number, ide_number, address, birthday, email, status, url_photo,
          city_birth_id, city_issue_id
   FROM users
   WHERE id = $user_id
@@ -65,6 +65,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $city_birth = intval($_POST['city_birth_id']);
     $city_issue = intval($_POST['city_issue_id']);
 
+    // Verificar si la fecha de nacimiento es válida antes de actualizar
+    if (empty($birthday)) {
+        $birthday = $user['birthday']; // Mantener la fecha actual si no se ha proporcionado
+    }
+
+    // Verificar si se subió una nueva foto
+    $url_photo = $user['url_photo']; // Mantener la foto actual si no se sube una nueva
+    if ($_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['photo']['tmp_name'];
+        $fileName = $_FILES['photo']['name'];
+        $fileSize = $_FILES['photo']['size'];
+        $fileType = $_FILES['photo']['type'];
+
+        // Verificar el tipo y tamaño de la imagen
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (in_array($fileType, $allowedTypes) && $fileSize < 5000000) { // Límite de 5MB
+            $dest_path = 'photos/' . $fileName;
+            if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                $url_photo = $dest_path; // Actualizar la ruta de la foto
+            } else {
+                $error = 'Error al subir la imagen.';
+            }
+        } else {
+            $error = 'Formato o tamaño de imagen no permitido.';
+        }
+    }
+
+    // Actualizar los datos en la base de datos
     $sql_update = "
       UPDATE users SET
         firstname = '$firstname',
@@ -76,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         status = $status,
         city_birth_id = $city_birth,
         city_issue_id = $city_issue,
+        url_photo = '$url_photo',  -- Actualizar la foto
         updated_at = now()
       WHERE id = $user_id
     ";
@@ -92,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Update User</title>
+<title>Actualizar Usuario</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -102,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="nav"><a href="list_users.php" class="btn">Volver</a></div>
   </div>
   <div class="card">
-      <form method="POST">
+      <form method="POST" enctype="multipart/form-data">
           <div class="form-row"><label>Firstname</label><input type="text" name="firstname" value="<?= htmlspecialchars($user['firstname']) ?>" required></div>
           <div class="form-row"><label>Lastname</label><input type="text" name="lastname" value="<?= htmlspecialchars($user['lastname']) ?>" required></div>
           <div class="form-row"><label>Mobile Number</label><input type="text" name="mobile_number" value="<?= htmlspecialchars($user['mobile_number']) ?>" required></div>
@@ -141,6 +170,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="form-row">
               <label>City</label>
               <select name="city_issue_id" id="city_issue" required></select>
+          </div>
+
+          <!-- Campo para subir la foto -->
+          <div class="form-row">
+              <label>Foto de perfil (opcional)</label>
+              <input type="file" name="photo" accept="image/*">
           </div>
 
           <div class="form-actions">
